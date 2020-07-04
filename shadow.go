@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -45,5 +46,20 @@ func getDeviceShadows(c echo.Context) error {
 }
 
 func updateShadow(c echo.Context) error {
+	var (
+		body map[string]interface{}
+	)
+	for !mqttClient.IsConnected() {
+		connectToBroker()
+	}
+	err := json.NewDecoder(c.Request().Body).Decode(&body)
+	if err != nil {
+		return c.JSON(500, err)
+	}
+	if c.QueryParam("shadowName") == "" {
+		mqttClient.Publish(c.Path(), 0, false, body)
+	} else {
+		mqttClient.Publish(c.Path()+"/"+c.QueryParam("shadowName"), 0, false, body)
+	}
 	return c.JSON(200, nil)
 }
