@@ -54,9 +54,10 @@ func setupRouter() *echo.Echo {
 		Format: "time=${time_rfc3339} method=${method}, uri=${uri}, status=${status} path=${path} latency=${latency_human}\n",
 	}))
 
-	shadowGroup := e.Group("/api/v1/shadow")
+	shadowGroup := e.Group("/api/v1/shadows")
 
 	shadowGroup.GET("/:urn/shadow", getShadow)
+	shadowGroup.GET("/device/:urn/shadows", getDeviceShadows)
 
 	shadowGroup.POST("/:urn/shadow/update", updateShadow)
 
