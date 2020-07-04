@@ -30,7 +30,7 @@ func setClientOptions() *mqtt.ClientOptions {
 	return opts
 }
 
-func main() {
+func connectToBroker() {
 	opts := setClientOptions()
 
 	opts.OnConnect = func(c mqtt.Client) {
@@ -42,4 +42,8 @@ func main() {
 	} else {
 		log.Println("Connected to MQTT Broker")
 	}
+}
+
+func main() {
+	connectToBroker()
 }
