@@ -3,6 +3,8 @@ package main
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"os"
@@ -42,6 +44,21 @@ func connectToBroker() {
 	} else {
 		log.Println("Connected to MQTT Broker")
 	}
+}
+
+func setupRouter() {
+	e := echo.New()
+
+	e.Use(middleware.RequestID())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "time=${time_rfc3339} method=${method}, uri=${uri}, status=${status} path=${path} latency=${latency_human}\n",
+	}))
+
+	shadowGroup := e.Group("/api/v1/shadow")
+
+	shadowGroup.GET("/:urn/shadow", nil)
+
+	shadowGroup.POST("/:urn/shadow/update", nil)
 }
 
 func main() {
