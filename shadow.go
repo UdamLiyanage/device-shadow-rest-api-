@@ -13,7 +13,7 @@ func getShadow(c echo.Context) error {
 		}
 		shadow Shadow
 	)
-	if c.QueryParam("shadowName") == "" {
+	if c.QueryParam("shadowName") != "" {
 		result := crud.Index(bson.M{
 			"device": c.Param("urn"),
 			"name":   c.QueryParam("shadowName"),
