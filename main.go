@@ -11,13 +11,13 @@ import (
 )
 
 var (
-	shadow     *mongo.Collection
-	mqttClient mqtt.Client
+	shadowCollection *mongo.Collection
+	mqttClient       mqtt.Client
 )
 
 func init() {
 	client := connect()
-	shadow = databaseCollection(client, "Shadow", "shadow")
+	shadowCollection = databaseCollection(client, "Shadow", "shadow")
 }
 
 func onMessageReceived(_ mqtt.Client, msg mqtt.Message) {

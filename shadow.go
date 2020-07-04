@@ -1,9 +1,29 @@
 package main
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/mongo"
+)
 
 func getShadow(c echo.Context) error {
-	return c.JSON(200, nil)
+	var (
+		crud Operations = Configuration{
+			Collection: shadowCollection,
+		}
+		shadow Shadow
+	)
+	result := crud.Index(c.Param("urn"))
+	if result.Err() != nil {
+		if result.Err() == mongo.ErrNoDocuments {
+			return c.JSON(404, nil)
+		}
+		panic(result.Err())
+	}
+	err := result.Decode(&shadow)
+	if err != nil {
+		panic(err)
+	}
+	return c.JSON(200, shadow)
 }
 
 func getDeviceShadows(c echo.Context) error {
