@@ -11,7 +11,7 @@ type (
 	Operations interface {
 		Create(model interface{}) (interface{}, error)
 		Read(filter bson.M) (interface{}, error)
-		Index(urn string) *mongo.SingleResult
+		Index(filter bson.M) *mongo.SingleResult
 		Update(urn string, update interface{}) (*mongo.UpdateResult, error)
 		Delete(urn string) (bool, error)
 	}
@@ -31,8 +31,7 @@ func (config Configuration) Read(filter bson.M) (interface{}, error) {
 	return docs, err
 }
 
-func (config Configuration) Index(urn string) *mongo.SingleResult {
-	filter := bson.M{"urn": urn}
+func (config Configuration) Index(filter bson.M) *mongo.SingleResult {
 	res := config.Collection.FindOne(context.Background(), filter)
 	return res
 }

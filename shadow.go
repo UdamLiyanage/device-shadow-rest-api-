@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -12,7 +13,9 @@ func getShadow(c echo.Context) error {
 		}
 		shadow Shadow
 	)
-	result := crud.Index(c.Param("urn"))
+	result := crud.Index(bson.M{
+		"device": "",
+	})
 	if result.Err() != nil {
 		if result.Err() == mongo.ErrNoDocuments {
 			return c.JSON(404, nil)
