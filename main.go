@@ -46,7 +46,7 @@ func connectToBroker() {
 	}
 }
 
-func setupRouter() {
+func setupRouter() *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.RequestID())
@@ -59,8 +59,12 @@ func setupRouter() {
 	shadowGroup.GET("/:urn/shadow", nil)
 
 	shadowGroup.POST("/:urn/shadow/update", nil)
+
+	return e
 }
 
 func main() {
 	connectToBroker()
+	r := setupRouter()
+	r.Logger.Fatal(r.Start(":8080"))
 }
