@@ -13,20 +13,31 @@ func getShadow(c echo.Context) error {
 		}
 		shadow Shadow
 	)
-	result := crud.Index(bson.M{
-		"device": "",
-	})
-	if result.Err() != nil {
-		if result.Err() == mongo.ErrNoDocuments {
-			return c.JSON(404, nil)
+	if c.QueryParam("shadowName") == "" {
+		result := crud.Index(bson.M{
+			"device": c.Param("urn"),
+			"name":   c.QueryParam("shadowName"),
+		})
+		if result.Err() != nil {
+			if result.Err() == mongo.ErrNoDocuments {
+				return c.JSON(404, nil)
+			}
+			panic(result.Err())
 		}
-		panic(result.Err())
+		err := result.Decode(&shadow)
+		if err != nil {
+			return c.JSON(500, nil)
+		}
+		return c.JSON(200, shadow)
+	} else {
+		response, err := crud.Read(bson.M{
+			"device": c.Param("urn"),
+		})
+		if err != nil {
+			return c.JSON(500, nil)
+		}
+		return c.JSON(200, response)
 	}
-	err := result.Decode(&shadow)
-	if err != nil {
-		panic(err)
-	}
-	return c.JSON(200, shadow)
 }
 
 func getDeviceShadows(c echo.Context) error {
