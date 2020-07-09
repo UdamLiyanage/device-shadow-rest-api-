@@ -17,7 +17,7 @@ var (
 
 func init() {
 	client := connect()
-	shadowCollection = databaseCollection(client, "Shadow", "shadow")
+	shadowCollection = databaseCollection(client, "Shadow", "shadows")
 }
 
 func onMessageReceived(_ mqtt.Client, msg mqtt.Message) {
