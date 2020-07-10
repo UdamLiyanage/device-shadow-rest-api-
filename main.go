@@ -56,7 +56,7 @@ func setupRouter() *echo.Echo {
 
 	shadowGroup := e.Group("/api/v1/shadows")
 
-	shadowGroup.GET("/:urn/shadow", getShadow)
+	shadowGroup.GET("/:id/shadow", getShadow)
 	shadowGroup.GET("/device/:urn/shadows", getDeviceShadows)
 
 	shadowGroup.POST("/:urn/shadow/update", updateShadow)

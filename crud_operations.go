@@ -10,7 +10,7 @@ import (
 type (
 	Operations interface {
 		Create(model interface{}) (interface{}, error)
-		Read(filter bson.M) (interface{}, error)
+		Read(filter bson.M) (*mongo.Cursor, error)
 		Index(filter bson.M) *mongo.SingleResult
 		Update(urn string, update interface{}) (*mongo.UpdateResult, error)
 		Delete(urn string) (bool, error)
@@ -26,7 +26,7 @@ func (config Configuration) Create(model interface{}) (interface{}, error) {
 	return doc, err
 }
 
-func (config Configuration) Read(filter bson.M) (interface{}, error) {
+func (config Configuration) Read(filter bson.M) (*mongo.Cursor, error) {
 	docs, err := config.Collection.Find(context.Background(), filter)
 	return docs, err
 }

@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"os"
 )
@@ -14,37 +17,43 @@ func getShadow(c echo.Context) error {
 		crud Operations = Configuration{
 			Collection: shadowCollection,
 		}
-		shadow Shadow
+		shadow map[string]interface{}
 	)
-	if c.QueryParam("shadowName") != "" {
-		result := crud.Index(bson.M{
-			"device": c.Param("urn"),
-			"name":   c.QueryParam("shadowName"),
-		})
-		if result.Err() != nil {
-			if result.Err() == mongo.ErrNoDocuments {
-				return c.JSON(404, nil)
-			}
-			panic(result.Err())
-		}
-		err := result.Decode(&shadow)
-		if err != nil {
-			return c.JSON(500, nil)
-		}
-		return c.JSON(200, shadow)
-	} else {
-		response, err := crud.Read(bson.M{
-			"device": c.Param("urn"),
-		})
-		if err != nil {
-			return c.JSON(500, nil)
-		}
-		return c.JSON(200, response)
+	objID, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		log.Error(err.Error())
+		return c.JSON(500, err)
 	}
+	err = crud.Index(bson.M{
+		"_id": objID,
+	}).Decode(&shadow)
+	if err != nil {
+		log.Error(err.Error())
+		return c.JSON(500, nil)
+	}
+	return c.JSON(200, shadow)
 }
 
 func getDeviceShadows(c echo.Context) error {
-	return c.JSON(200, nil)
+	var (
+		crud Operations = Configuration{
+			Collection: shadowCollection,
+		}
+		shadows []map[string]interface{}
+	)
+	response, err := crud.Read(bson.M{
+		"device": c.Param("urn"),
+	})
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return c.JSON(404, nil)
+		}
+	}
+	err = response.All(context.Background(), &shadows)
+	if err != nil {
+		log.Error(err.Error())
+	}
+	return c.JSON(200, shadows)
 }
 
 func updateShadow(c echo.Context) error {
