@@ -45,6 +45,9 @@ func getDeviceShadows(c echo.Context) error {
 		"device": c.Param("urn"),
 	})
 	if err != nil {
+		if response.Err() == mongo.ErrNoDocuments {
+			return c.JSON(404, nil)
+		}
 		if err == mongo.ErrNoDocuments {
 			return c.JSON(404, nil)
 		}
